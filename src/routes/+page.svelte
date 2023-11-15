@@ -5,26 +5,35 @@
 	/** @type {import('./$types').PageServerData} */
 	export let data;
 
-	/**
-	 * @type {string}
-	 */
+	/** @type {string} */
 	let input = 'exquisitely realised with obtuse observation and insight';
 	let isSearching = false;
 
-	let plotOptions = { x: 'x', y: 'y', stroke: 'lightgray', tip: true, title: 'w' };
+	let plotOptions = {
+		x: 'x',
+		y: 'y',
+		stroke: '#023047',
+		channels: { title: 'w', form: 'f', genre: 'g' },
+		tip: true
+	};
+	let axisOptions = {
+		label: null,
+		labelArrow: null,
+		ticks: 0
+	};
 
-	/**
-	 * @type {Array<{ entry: Object, similarity: number }> | null}
-	 */
+	/**  @type {Array<{ entry: Object, similarity: number }> | null} */
 	let results = null;
 
 	async function handleSearch() {
 		isSearching = true;
+		results = null;
+
 		data.streamed.index
 			.then((index) => search(index, input))
 			.then((r) => {
-				results = r;
 				isSearching = false;
+				results = r;
 			});
 	}
 </script>
@@ -35,57 +44,52 @@
 	<p>Loading index...</p>
 {:then index}
 	<h2>Search</h2>
-	<p>Loaded index with <em>{index.length}</em> elements</p>
+	<p>Loaded index with <em>{index.length}</em> entries</p>
 	<form on:submit={() => handleSearch()}>
 		Enter a search query:
 		<input name="input" bind:value={input} size="50" />
 		<button disabled={!input || isSearching}>Search</button>
 	</form>
 
-	{#if isSearching}
-		<p>Searching for <em>{input}</em>...</p>
-	{:else if results}
-		<h3>Results</h3>
-		<div class="container">
-			<div class="column">
-				<Plot
-					options={{
-						marks: [
-							PlotLib.dot(index, plotOptions),
+	<div class="container">
+		<div class="column">
+			<h3>Index entries</h3>
+			<Plot
+				options={{
+					marks: [
+						PlotLib.dot(index, plotOptions),
+						results &&
 							PlotLib.dot(
 								results.map((r) => ({ ...r.entry, similarity: r.similarity })),
 								{
 									x: 'x',
 									y: 'y',
-									stroke: 'blue',
+									stroke: '#ffb703',
 									channels: { similarity: 'similarity', titles: 'w' },
 									tip: true
 								}
 							)
-						]
-					}}>Loading plot...</Plot
-				>
-			</div>
-			<div class="column">
+					],
+					x: axisOptions,
+					y: axisOptions
+				}}>Loading plot...</Plot
+			>
+		</div>
+		<div class="column">
+			{#if isSearching || results}
+				<h3>Search results</h3>
+			{/if}
+			{#if isSearching}
+				<p>Searching for <em>{input}</em>...</p>
+			{:else if results}
 				<ol>
 					{#each results as result}
 						<li>{Number(result.similarity).toFixed(3)}, {result.entry.w.join('; ')}</li>
 					{/each}
 				</ol>
-			</div>
+			{/if}
 		</div>
-	{:else}
-		<h3>Index entries</h3>
-		<div class="container">
-			<div class="column">
-				<Plot
-					options={{
-						marks: [PlotLib.dot(index, plotOptions)]
-					}}>Loading plot...</Plot
-				>
-			</div>
-		</div>
-	{/if}
+	</div>
 {:catch error}
 	<p style="color: red">{error.message}</p>
 {/await}
