@@ -22,7 +22,7 @@ export async function search(index, query) {
 
 	results.sort((a, b) => b.similarity - a.similarity);
 
-	return results.slice(0, 25);
+	return results;
 }
 
 /**

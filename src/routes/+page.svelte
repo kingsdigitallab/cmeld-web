@@ -9,6 +9,7 @@
 
 	/** @type {string} */
 	let query = '';
+	let numberOfResults = 50;
 	let isSearching = false;
 
 	let plotOptions = {
@@ -35,12 +36,13 @@
 			.then((index) => search(index, query))
 			.then((r) => {
 				isSearching = false;
-				results = r;
+				results = r.slice(0, numberOfResults);
 			});
 	}
 
 	onMount(() => {
 		query = $page.url.searchParams.get('query') || '';
+		numberOfResults = parseInt($page.url.searchParams.get('size') || '25');
 	});
 </script>
 
@@ -52,8 +54,17 @@
 	<h2>Search</h2>
 	<p>Loaded index with {index.length.toLocaleString()} reviews.</p>
 	<form on:submit={() => handleSearch()}>
-		Enter a search query:
-		<input name="query" bind:value={query} size="50" />
+		<label for="query">Enter a search query:</label>
+		<input type="search" name="query" id="query" bind:value={query} size="50" />
+		<label for="size">Number of results:</label>
+		<input
+			type="number"
+			name="size"
+			id="size"
+			min="1"
+			max={index.length}
+			bind:value={numberOfResults}
+		/>
 		<button disabled={!query || isSearching}>Search</button>
 	</form>
 
