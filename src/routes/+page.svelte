@@ -1,12 +1,13 @@
 <script>
-	import { search } from '$lib/index';
+	import { page } from '$app/stores';
 	import Plot, { PlotLib } from '$lib/components/Plot.svelte';
+	import { search } from '$lib/index';
 
 	/** @type {import('./$types').PageServerData} */
 	export let data;
 
 	/** @type {string} */
-	let input = '';
+	let query = $page.url.searchParams.get('query') || '';
 	let isSearching = false;
 
 	let plotOptions = {
@@ -30,7 +31,7 @@
 		results = null;
 
 		data.streamed.index
-			.then((index) => search(index, input))
+			.then((index) => search(index, query))
 			.then((r) => {
 				isSearching = false;
 				results = r;
@@ -47,8 +48,8 @@
 	<p>Loaded index with {index.length.toLocaleString()} reviews.</p>
 	<form on:submit={() => handleSearch()}>
 		Enter a search query:
-		<input name="input" bind:value={input} size="50" />
-		<button disabled={!input || isSearching}>Search</button>
+		<input name="query" bind:value={query} size="50" />
+		<button disabled={!query || isSearching}>Search</button>
 	</form>
 
 	<div class="container">
@@ -86,7 +87,7 @@
 				<h3>Search results</h3>
 			{/if}
 			{#if isSearching}
-				<p>Searching for <em>{input}</em>...</p>
+				<p>Searching for <em>{query}</em>...</p>
 			{:else if results}
 				<p>
 					Displaying the top 25 search results, ordered by similarity. Each result corresponds to
