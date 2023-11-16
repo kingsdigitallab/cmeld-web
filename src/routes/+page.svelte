@@ -2,12 +2,13 @@
 	import { page } from '$app/stores';
 	import Plot, { PlotLib } from '$lib/components/Plot.svelte';
 	import { search } from '$lib/index';
+	import { onMount } from 'svelte';
 
 	/** @type {import('./$types').PageServerData} */
 	export let data;
 
 	/** @type {string} */
-	let query = $page.url.searchParams.get('query') || '';
+	let query = '';
 	let isSearching = false;
 
 	let plotOptions = {
@@ -37,6 +38,10 @@
 				results = r;
 			});
 	}
+
+	onMount(() => {
+		query = $page.url.searchParams.get('query') || '';
+	});
 </script>
 
 <h1>Critical Modelling Semantic Search</h1>
