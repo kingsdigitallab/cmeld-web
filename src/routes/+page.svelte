@@ -6,7 +6,7 @@
 	export let data;
 
 	/** @type {string} */
-	let input = 'exquisitely realised with obtuse observation and insight';
+	let input = '';
 	let isSearching = false;
 
 	let plotOptions = {
@@ -44,7 +44,7 @@
 	<p>Loading index...</p>
 {:then index}
 	<h2>Search</h2>
-	<p>Loaded index with <em>{index.length}</em> entries</p>
+	<p>Loaded index with {index.length.toLocaleString()} reviews.</p>
 	<form on:submit={() => handleSearch()}>
 		Enter a search query:
 		<input name="input" bind:value={input} size="50" />
@@ -53,7 +53,12 @@
 
 	<div class="container">
 		<div class="column">
-			<h3>Index entries</h3>
+			<h3>Reviews embeddings</h3>
+			<p>
+				Each dark blue circle corresponds to the embeddings of a review. After a search, the search
+				results are highlighted in orange in the plot. You can hover over the plot to see the title
+				of the work associated with the review.
+			</p>
 			<Plot
 				options={{
 					marks: [
@@ -65,6 +70,7 @@
 									x: 'x',
 									y: 'y',
 									stroke: '#ffb703',
+									strokeWidth: 2,
 									channels: { similarity: 'similarity', titles: 'w' },
 									tip: true
 								}
@@ -82,9 +88,24 @@
 			{#if isSearching}
 				<p>Searching for <em>{input}</em>...</p>
 			{:else if results}
+				<p>
+					Displaying the top 25 search results, ordered by similarity. Each result corresponds to
+					the text of a review about one or more works.
+				</p>
 				<ol>
 					{#each results as result}
-						<li>{Number(result.similarity).toFixed(3)}, {result.entry.w.join('; ')}</li>
+						<li>
+							<dl>
+								<dt>Title(s)</dt>
+								{#each result.entry.w as title}
+									<dd>{title}</dd>
+								{/each}
+								<dt>Review(s)</dt>
+								<dd>{result.entry.i.join('; ')}</dd>
+								<dt>Similarity</dt>
+								<dd>{Number(result.similarity).toFixed(3)}</dd>
+							</dl>
+						</li>
 					{/each}
 				</ol>
 			{/if}
@@ -95,6 +116,18 @@
 {/await}
 
 <style>
+	ol {
+		list-style-type: decimal-leading-zero;
+	}
+	li {
+		padding-bottom: 0.5em;
+	}
+	dt {
+		font-size: 0.8em;
+	}
+	dd {
+		margin-inline-start: 0;
+	}
 	.container {
 		display: flex;
 		flex-direction: row;
