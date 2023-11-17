@@ -76,7 +76,7 @@
 				</hgroup>
 				<form on:submit={() => handleSearch()}>
 					<label for="query"
-						>Enter a search query
+						>Search query
 						<input
 							type="search"
 							name="query"
