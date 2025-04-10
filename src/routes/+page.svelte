@@ -45,6 +45,11 @@
 				isSearching = false;
 				results = r.slice(0, numberOfResults);
 			});
+
+		const el = document.getElementById('embeddings');
+		if (el) {
+			el.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
+		}
 	}
 
 	onMount(() => {
@@ -102,7 +107,7 @@
 				</form>
 			</div>
 
-			<div>
+			<div id="embeddings">
 				<hgroup>
 					<h2>Embeddings</h2>
 					<h3>
@@ -136,7 +141,7 @@
 		</div>
 	</section>
 
-	<section>
+	<section id="search-results">
 		{#if isSearching}
 			<hgroup>
 				<h2>Search results</h2>
@@ -144,7 +149,7 @@
 			</hgroup>
 		{:else if results}
 			<hgroup>
-				<h2>Search results for {_q}</h2>
+				<h2>Search results for <em>{_q}</em></h2>
 				<h3>
 					Displaying <strong>{_nor}</strong> search results, ordered by similarity. Each result corresponds
 					to the text of a review about one or more works.
